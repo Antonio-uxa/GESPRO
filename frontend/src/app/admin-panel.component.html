@@ -3,17 +3,48 @@
     <div class="admin-create-header">
       <div>
         <h3>Acceso Administrador</h3>
-        <p>STATUS y MODO ANALISTA son publicos. ADMIN requiere autenticacion.</p>
+        <p>Ingresa la contraseña para administrar tiempos y tipos de promoción.</p>
       </div>
-      <span class="admin-section-badge">ADMIN</span>
+      <div class="admin-login-actions-row" style="display:flex; gap:8px; align-items:center; margin-left:auto;">
+        <input type="password" [(ngModel)]="host.adminLoginPassword" class="admin-input" placeholder="Contraseña de administrador" style="flex:1; max-width:400px">
+        <button (click)="host.loginAdmin()" class="admin-primary-btn" [disabled]="host.adminAutenticando">{{ host.adminAutenticando ? 'Ingresando...' : 'Ingresar' }}</button>
+      </div>
     </div>
-
-    <div class="admin-create-row">
-      <input type="password" [(ngModel)]="host.adminLoginPassword" class="admin-input-lg" placeholder="Contrasena de administrador" (keyup.enter)="host.loginAdmin()">
-      <button (click)="host.loginAdmin()" class="admin-primary-btn" [disabled]="host.adminAutenticando">{{ host.adminAutenticando ? 'Ingresando...' : 'Ingresar' }}</button>
+    <div style="margin-top:12px; text-align:right;">
+      <button *ngIf="host.adminAutenticado" (click)="host.guardarTiemposPromocionesTodos()" class="admin-primary-btn" [disabled]="!host.tiposPromocion?.length || host.guardandoTiempos">
+        {{ host.guardandoTiempos ? 'Guardando...' : 'Guardar todos los tiempos' }}
+      </button>
+      <button type="button" (click)="host.toggleAdminResetPanel()" class="admin-reset-link">{{ host.adminResetPanelOpen ? 'Cerrar restablecimiento' : 'Restablecer contraseña' }}</button>
     </div>
 
     <p class="admin-auth-error" *ngIf="host.adminLoginError">{{ host.adminLoginError }}</p>
+
+    <section *ngIf="host.adminResetPanelOpen" class="admin-security-section admin-security-section-login" style="margin-top: 1rem;">
+      <section class="admin-create-card admin-auth-card admin-security-form-card">
+        <div class="admin-edit-grid admin-security-grid admin-reset-grid">
+          <label>
+            <span>Contraseña de restablecimiento</span>
+            <input type="password" [(ngModel)]="host.adminRecoveryPassword" class="admin-input-lg" placeholder="Contraseña de restablecimiento">
+          </label>
+          <label>
+            <span>Nueva contraseña de administrador</span>
+            <input type="password" [(ngModel)]="host.adminRecoveryNewPassword" class="admin-input-lg" placeholder="Nueva contraseña de administrador">
+          </label>
+          <label>
+            <span>Confirmar nueva contraseña</span>
+            <input type="password" [(ngModel)]="host.adminRecoveryConfirmacion" class="admin-input-lg" placeholder="Repite la nueva contraseña">
+          </label>
+        </div>
+
+        <div class="admin-edit-actions admin-security-actions admin-security-actions-login">
+          <button (click)="host.restablecerContrasenaAdmin()" class="admin-primary-btn" [disabled]="host.adminRestableciendoPassword">{{ host.adminRestableciendoPassword ? 'Restableciendo...' : 'Restablecer contraseña' }}</button>
+          <button (click)="host.toggleAdminResetPanel(false)" class="admin-secondary-btn">Cerrar</button>
+        </div>
+
+        <p class="admin-auth-error" *ngIf="host.adminRecoveryError">{{ host.adminRecoveryError }}</p>
+        <p class="admin-auth-success" *ngIf="host.adminRecoveryExito">{{ host.adminRecoveryExito }}</p>
+      </section>
+    </section>
   </section>
 </div>
 
@@ -33,62 +64,156 @@
         <span>Promociones</span>
         <strong>{{ host.configuracionPromos.length }}</strong>
       </div>
+      <button (click)="host.toggleAdminPasswordPanel()" class="admin-secondary-btn admin-security-toggle-btn">
+        {{ host.adminPasswordPanelOpen ? 'Ocultar seguridad' : 'Cambiar contraseña' }}
+      </button>
       <button (click)="host.cerrarSesionAdmin()" class="admin-secondary-btn">Cerrar sesion admin</button>
     </div>
   </section>
 
-  <section class="admin-mode-switch">
-    <button (click)="host.adminModo='GESTION'" [class.admin-mode-active]="host.adminModo === 'GESTION'" class="admin-mode-btn">Gestion de Usuarios</button>
-    <button (click)="host.adminModo='GENERAL'" [class.admin-mode-active]="host.adminModo === 'GENERAL'" class="admin-mode-btn">Configuracion General</button>
-    <button (click)="host.adminModo='ESPECIFICO'" [class.admin-mode-active]="host.adminModo === 'ESPECIFICO'" class="admin-mode-btn">Configuracion Especifica</button>
+  <section *ngIf="host.adminPasswordPanelOpen" class="admin-security-section">
+    <div class="admin-security-copy">
+      <p class="admin-kicker">Seguridad</p>
+      <h3>Cambiar contraseña de administrador</h3>
+      <p>
+        Mantén protegido el acceso al panel con una clave nueva cuando lo necesites.
+        El cambio se guarda de forma persistente y no interrumpe tu sesión actual.
+      </p>
+
+      <div class="admin-security-notes">
+        <div class="admin-security-note">
+          <strong>1</strong>
+          <span>Verifica la contraseña actual antes de guardar.</span>
+        </div>
+        <div class="admin-security-note">
+          <strong>2</strong>
+          <span>Usa una clave nueva y repítela exactamente igual.</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="admin-create-card admin-auth-card admin-security-form-card">
+      <div class="admin-create-header">
+        <div>
+          <h3>Formulario de contraseña</h3>
+          <p>Actualiza la clave de acceso del administrador sin salir del panel.</p>
+        </div>
+        <span class="admin-section-badge">SEGURIDAD</span>
+      </div>
+
+      <div class="admin-edit-grid admin-security-grid">
+        <label>
+          <span>Contraseña actual</span>
+          <input type="password" [(ngModel)]="host.adminPasswordActual" class="admin-input-lg" placeholder="Contraseña actual">
+        </label>
+        <label>
+          <span>Nueva contraseña</span>
+          <input type="password" [(ngModel)]="host.adminPasswordNueva" class="admin-input-lg" placeholder="Nueva contraseña">
+        </label>
+        <label>
+          <span>Confirmar nueva contraseña</span>
+          <input type="password" [(ngModel)]="host.adminPasswordConfirmacion" class="admin-input-lg" placeholder="Repite la nueva contraseña">
+        </label>
+      </div>
+
+      <div class="admin-edit-actions admin-security-actions">
+        <button (click)="host.cambiarContrasenaAdmin()" class="admin-primary-btn" [disabled]="host.adminCambiandoPassword">{{ host.adminCambiandoPassword ? 'Guardando...' : 'Cambiar contraseña' }}</button>
+      </div>
+
+      <p class="admin-auth-error" *ngIf="host.adminPasswordError">{{ host.adminPasswordError }}</p>
+      <p class="admin-auth-success" *ngIf="host.adminPasswordExito">{{ host.adminPasswordExito }}</p>
+
+      <hr style="margin: 1.5rem 0; opacity: 0.2;">
+
+      <div class="admin-create-header">
+        <div>
+          <h3>Contraseña de restablecimiento</h3>
+          <p>Clave separada para recuperar el acceso al administrador desde la pantalla de ingreso.</p>
+        </div>
+        <span class="admin-section-badge">RECUPERACION</span>
+      </div>
+
+      <div class="admin-edit-grid admin-security-grid">
+        <label>
+          <span>Contraseña actual de administrador</span>
+          <input type="password" [(ngModel)]="host.adminRecoveryAdminPasswordActual" class="admin-input-lg" placeholder="Contraseña actual de administrador">
+        </label>
+        <label>
+          <span>Nueva contraseña de restablecimiento</span>
+          <input type="password" [(ngModel)]="host.adminRecoveryNuevaClave" class="admin-input-lg" placeholder="Nueva contraseña de restablecimiento">
+        </label>
+        <label>
+          <span>Confirmar contraseña de restablecimiento</span>
+          <input type="password" [(ngModel)]="host.adminRecoveryConfirmacionClave" class="admin-input-lg" placeholder="Repite la contraseña de restablecimiento">
+        </label>
+      </div>
+
+      <div class="admin-edit-actions admin-security-actions">
+        <button (click)="host.cambiarContrasenaRecuperacionAdmin()" class="admin-primary-btn" [disabled]="host.adminCambiandoRecoveryPassword">{{ host.adminCambiandoRecoveryPassword ? 'Guardando...' : 'Cambiar contraseña de restablecimiento' }}</button>
+      </div>
+
+      <p class="admin-auth-error" *ngIf="host.adminRecoveryAdminError">{{ host.adminRecoveryAdminError }}</p>
+      <p class="admin-auth-success" *ngIf="host.adminRecoveryAdminExito">{{ host.adminRecoveryAdminExito }}</p>
+
+      <div class="admin-edit-actions admin-security-actions">
+        <button (click)="host.toggleAdminPasswordPanel(false)" class="admin-secondary-btn">Cerrar</button>
+      </div>
+    </section>
   </section>
+
+    <section class="admin-mode-switch">
+      <button (click)="host.adminModo='GESTION'" [class.admin-mode-active]="host.adminModo === 'GESTION'" class="admin-mode-btn">Gestion de Usuarios</button>
+      <button (click)="host.adminModo='GENERAL'" [class.admin-mode-active]="host.adminModo === 'GENERAL'" class="admin-mode-btn">Configuracion General</button>
+    </section>
 
   <section *ngIf="host.adminModo === 'GESTION'" class="admin-create-card">
     <div class="admin-create-header">
       <div>
         <h3>Gestion de Usuarios</h3>
-        <p>Crear, editar y eliminar analistas desde un solo lugar.</p>
+        <p>Separa analistas y paquetes en dos vistas para trabajar sin mezclar acciones.</p>
       </div>
       <span class="admin-section-badge">CRUD</span>
     </div>
 
-    <div class="admin-create-row">
-      <input [(ngModel)]="host.nuevoUsuario" placeholder="Nombre completo..." class="admin-input-lg">
-      <button (click)="host.agregarUsuario()" class="admin-primary-btn">+ Crear Analista</button>
-    </div>
+    <section class="admin-mode-switch admin-gestion-switch">
+      <button (click)="host.adminGestionVista='USUARIOS'" [class.admin-mode-active]="host.adminGestionVista === 'USUARIOS'" class="admin-mode-btn">Usuarios</button>
+      <button (click)="host.adminGestionVista='PAQUETES'" [class.admin-mode-active]="host.adminGestionVista === 'PAQUETES'" class="admin-mode-btn">Paquetes</button>
+    </section>
 
-    <div *ngIf="host.usuarioEditando" class="admin-edit-card">
-      <h4>Editar Analista</h4>
-      <div class="admin-edit-grid">
-        <label>
-          <span>Nombre</span>
-          <input [(ngModel)]="host.usuarioEditando.nombre" class="admin-input-lg" placeholder="Nombre completo...">
-        </label>
-        <label>
-          <span>Tiempo general (min)</span>
-          <input type="number" min="0" step="0.1" [(ngModel)]="host.usuarioEditando.tiempo_general" class="admin-input-lg">
-        </label>
+    <div *ngIf="host.adminGestionVista === 'USUARIOS'">
+      <div class="admin-create-row">
+        <input [(ngModel)]="host.nuevoUsuario" placeholder="Nombre completo..." class="admin-input-lg">
+        <button (click)="host.agregarUsuario()" class="admin-primary-btn">+ Crear Analista</button>
       </div>
-      <div class="admin-edit-actions">
-        <button (click)="host.guardarEdicionUsuario()" class="admin-primary-btn">Guardar cambios</button>
-        <button (click)="host.cancelarEdicionUsuario()" class="admin-secondary-btn">Cancelar</button>
-      </div>
-    </div>
 
-    <div class="admin-users-list">
-      <div *ngFor="let u of host.usuarios" class="admin-user-card">
-        <div class="admin-user-info">
-          <strong>{{ u.nombre }}</strong>
-          <span>{{ u.tiempo_general }} min generales</span>
+      <div *ngIf="host.usuarioEditando" class="admin-edit-card">
+        <h4>Editar Analista</h4>
+        <div class="admin-edit-grid">
+          <label>
+            <span>Nombre</span>
+            <input [(ngModel)]="host.usuarioEditando.nombre" class="admin-input-lg" placeholder="Nombre completo...">
+          </label>
         </div>
-        <div class="admin-user-actions">
-          <button (click)="host.iniciarEdicionUsuario(u)" class="admin-link-btn">Editar</button>
-          <button (click)="host.eliminarUsuario(u)" class="admin-danger-btn">Eliminar</button>
+        <div class="admin-edit-actions">
+          <button (click)="host.guardarEdicionUsuario()" class="admin-primary-btn">Guardar cambios</button>
+          <button (click)="host.cancelarEdicionUsuario()" class="admin-secondary-btn">Cancelar</button>
         </div>
       </div>
+
+      <div class="admin-users-list">
+          <div *ngFor="let u of host.usuarios" class="admin-user-card">
+          <div class="admin-user-info">
+            <strong>{{ u.nombre }}</strong>
+          </div>
+          <div class="admin-user-actions">
+            <button (click)="host.iniciarEdicionUsuario(u)" class="admin-link-btn">Editar</button>
+            <button (click)="host.eliminarUsuario(u)" class="admin-danger-btn">Eliminar</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="admin-users-list">
+    <div *ngIf="host.adminGestionVista === 'PAQUETES'" class="admin-users-list">
       <div class="admin-create-header">
         <div>
           <h3>Gestion de Paquetes</h3>
@@ -104,7 +229,7 @@
           <span *ngIf="paquete === host.paqueteAnalistaNombre && host.paqueteAnalistaActivo">Paquete activo</span>
           <span class="status-chip-green" *ngIf="host.estadoPaqueteGuardado(paquete) === 'ACTIVO'">ACTIVO</span>
           <span class="status-chip-yellow" *ngIf="host.estadoPaqueteGuardado(paquete) === 'EN PROCESO'">EN PROCESO</span>
-          <span class="status-chip-red" *ngIf="host.estadoPaqueteGuardado(paquete) === 'FINALIZADO'">FINALIZADO</span>
+          <span class="status-chip-red" *ngIf="host.estadoPaqueteGuardado(paquete) === 'ENTREGADO'">ENTREGADO</span>
           <span class="status-chip-yellow" *ngIf="host.paqueteGuardado(paquete)?.bloqueadoEdicion">BLOQUEADO</span>
         </div>
         <div class="admin-user-actions" *ngIf="host.paqueteEditandoOriginal !== paquete; else editandoPaqueteTpl">
@@ -117,9 +242,7 @@
           <div class="admin-user-actions">
             <input [(ngModel)]="host.paqueteEditandoNombre" class="admin-time-input admin-time-general-input" placeholder="Nuevo nombre de paquete">
             <select [(ngModel)]="host.paqueteEditandoTipo" class="admin-time-input admin-time-general-input">
-              <option value="GENERAL">GENERAL</option>
-              <option value="ESPECIFICO">ESPECIFICO</option>
-              <option value="AMBOS">AMBOS</option>
+              <option value="GENERAL">Promociones planas</option>
             </select>
             <button (click)="host.guardarEdicionPaquete()" class="admin-primary-btn">Guardar</button>
             <button (click)="host.cancelarEdicionPaquete()" class="admin-secondary-btn">Cancelar</button>
@@ -131,53 +254,82 @@
 
   <section *ngIf="host.adminModo === 'GENERAL'" class="admin-table-card">
     <div class="admin-table-header">
-      <h3>Configuracion General</h3>
-      <p>Tiempo estandar por analista, aplicado como base para trabajo por lote o calculo general.</p>
+      <h3>Configuracion Promos</h3>
+      <p>Gestiona las promociones y define tiempos individuales por analista.</p>
     </div>
 
-    <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Analista</th>
-            <th>Tiempo General (min)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let u of host.usuarios">
-            <td class="admin-username">{{u.nombre}}</td>
-            <td>
-              <input type="number" min="0" step="0.1" [(ngModel)]="u.tiempo_general" (change)="host.validarYGuardarTiempoGeneral(u)" class="admin-time-input admin-time-general-input">
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <!-- CREAR / EDITAR TIPOS DE PROMOCIÓN -->
+      <div style="margin-top:1.25rem;">
+        <div class="promo-create-card promo-create-card-promos">
+          <div class="promo-fields-grid promo-fields-grid-promos">
+            <label class="promo-field">
+              <span class="promo-field-label">Nombre</span>
+              <input type="text" [(ngModel)]="host.nuevaPromocionNombre" placeholder="Ej. Texto Bono" class="admin-input">
+            </label>
+            <!-- Tiempo se edita después de crear la promoción -->
+          </div>
+          <div class="promo-form-actions">
+            <button (click)="host.crearTipoPromocion()" class="admin-primary-btn">Crear tipo</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <h4>Tipos existentes</h4>
+          <div *ngIf="!(host.tiposPromocion?.length) || host.tiposPromocion.length === 0" style="color:#666; margin:8px 0;">No hay tipos creados</div>
+          <div *ngIf="host.tiposPromocion?.length">
+            <table class="admin-table promo-table" style="margin-top:8px;">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let tipo of host.tiposPromocion">
+                  <td>
+                    <span *ngIf="!host.tiposEditando[tipo.id]">{{ tipo.nombre }}</span>
+                    <input *ngIf="host.tiposEditando[tipo.id]" type="text" [(ngModel)]="tipo.nombre" class="admin-input" style="width:100%">
+                  </td>
+                  <td>
+                    <button *ngIf="!host.tiposEditando[tipo.id]" (click)="host.tiposEditando[tipo.id] = true" class="admin-secondary-btn">Editar</button>
+                    <button *ngIf="host.tiposEditando[tipo.id]" (click)="host.actualizarTipoPromocion(tipo)" class="admin-primary-btn">Guardar</button>
+                    <button (click)="host.eliminarTipoPromocion(tipo)" class="admin-delete-btn">Eliminar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MATRIZ: TIEMPOS POR PROMOCIÓN Y ANALISTA -->
+      <div style="margin-top:1.5rem;">
+        <h4>Tiempos por Promoción (por Analista)</h4>
+        <div *ngIf="!host.tiposPromocion?.length" style="color:#666; margin-top:8px">Crea tipos de promoción arriba para poder definir tiempos por analista.</div>
+        <div *ngIf="host.tiposPromocion?.length" class="admin-table-wrap" style="overflow:auto;">
+          <table class="admin-table" style="min-width:800px;">
+            <thead>
+              <tr>
+                <th>Analista</th>
+                <th *ngFor="let promo of host.tiposPromocion">{{ promo.nombre }}</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of host.usuarios">
+                <td class="admin-username">{{ u.nombre }}</td>
+                <td *ngFor="let promo of host.tiposPromocion">
+                  <input type="number" min="0" class="admin-time-input" [ngModel]="u.config_tiempos?.[promo.id]" (ngModelChange)="host.actualizarTiempoPromoMinutos(u, promo.id, $event)" (change)="host.validarYGuardarTiempo(u, promo.id)">
+                </td>
+                
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
   </section>
 
-  <section *ngIf="host.adminModo === 'ESPECIFICO'" class="admin-table-card">
-    <div class="admin-table-header">
-      <h3>Configuracion Especifica</h3>
-      <p>Matriz analista vs promocion para fijar tiempos por tarea de forma detallada.</p>
-    </div>
+  <!-- Admin specific configuration removed -->
 
-    <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Analista</th>
-            <th *ngFor="let p of host.configuracionPromos">{{ p.nombre }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let u of host.usuarios">
-            <td class="admin-username">{{u.nombre}}</td>
-            <td *ngFor="let p of host.configuracionPromos">
-              <input type="number" min="0" [(ngModel)]="u.config_tiempos[p.id]" (change)="host.validarYGuardarTiempo(u, p.id)" class="admin-time-input">
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+  
 </div>

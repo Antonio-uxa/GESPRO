@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
-// SOLUCIÓN: Cambia './app.component' por './app'
-import { AppComponent } from './app'; // El nombre debe ser AppComponent
+// La app usa un solo componente raíz y cambia de modo por estado interno.
+import { AppComponent } from './app';
 
 export const routes: Routes = [
+  // Las rutas solo seleccionan el modo visible; no separan pantallas distintas.
   { path: '', redirectTo: 'analista', pathMatch: 'full' },
   { path: 'admin', component: AppComponent },
   { path: 'analista', component: AppComponent },

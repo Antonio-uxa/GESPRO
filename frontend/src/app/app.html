@@ -1,11 +1,12 @@
 <div class="app-shell">
-  
+  <!-- Selector principal de modo: analista, admin o dashboard público. -->
   <nav class="top-nav">
     <button (click)="setRol('analista')" [class.active]="rolActual==='analista'">MODO ANALISTA</button>
     <button (click)="setRol('admin')" [class.active]="rolActual==='admin'">ADMINISTRADOR</button>
     <button (click)="setRol('dashboard')" [class.active]="rolActual==='dashboard'">STATUS</button>
   </nav>
 
+  <!-- La misma app cambia de experiencia según el rol activo. -->
   <div *ngIf="usuarios !== null; else cargando" class="app-container">
 
     <div *ngIf="rolActual === 'dashboard'">
@@ -16,7 +17,8 @@
             <h2>Resumen de Rendimiento</h2>
             <p>Solo consulta: puedes filtrar paquetes o ver todos.</p>
           </div>
-          <button class="admin-primary-btn" (click)="cargarStatusResumen()" [disabled]="statusCargando">{{ statusCargando ? 'Cargando...' : 'Actualizar' }}</button>
+            <!-- Panel de creación de tipos movido fuera de la vista STATUS para evitar duplicados -->
+
         </div>
 
         <div class="status-view-switch">
@@ -25,36 +27,33 @@
         </div>
 
         <div class="status-filtros">
-          <div class="status-filtro-block">
+          <div class="status-filtro-block" *ngIf="statusTipoEstadistica === 'TODO'">
             <label>Modo</label>
-            <select class="admin-time-input" [(ngModel)]="statusFiltroModo">
+            <select class="admin-time-input" [(ngModel)]="statusFiltroModo" (change)="cargarStatusResumen()">
               <option value="ALL">Todos</option>
               <option value="GENERAL">GENERAL</option>
-              <option value="ESPECIFICO">ESPECIFICO</option>
+              <!-- ESPECIFICO mode removed -->
             </select>
           </div>
 
           <div class="status-filtro-block" *ngIf="puedeFiltrarUsuarioIndividualStatus">
             <label>Usuario (individual dentro del paquete)</label>
-            <select class="admin-time-input" [(ngModel)]="statusUsuarioIndividualId" (change)="cargarStatusResumen()">
+            <select class="admin-time-input" [(ngModel)]="statusUsuarioIndividualId">
               <option [ngValue]="null">Todos</option>
               <option *ngFor="let fila of statusOpcionesUsuariosEnVista" [ngValue]="fila.analista_id">{{ fila.nombre }}</option>
             </select>
           </div>
 
-          <div class="status-filtro-block" *ngIf="statusTipoEstadistica === 'TODO'">
+          <div class="status-filtro-block" *ngIf="statusTipoEstadistica === 'TODO' || statusTipoEstadistica === 'PAQUETE'">
             <label>Nombre (paquete o analista)</label>
-            <input class="admin-time-input" [(ngModel)]="statusFiltroNombre" (keyup.enter)="cargarStatusResumen()" placeholder="Ej: Lote abril o Juan">
+            <input class="admin-time-input" [(ngModel)]="statusFiltroNombre" placeholder="Ej: Lote abril o Juan">
           </div>
 
-          <div class="status-filtro-block">
-            <label>Desde</label>
-            <input type="date" class="admin-time-input" [(ngModel)]="statusFechaDesde">
-          </div>
-
-          <div class="status-filtro-block">
-            <label>Hasta</label>
-            <input type="date" class="admin-time-input" [(ngModel)]="statusFechaHasta">
+          <div class="status-filtro-block status-filtro-accion">
+            <label>&nbsp;</label>
+            <button type="button" class="admin-primary-btn" (click)="cargarStatusResumen()" [disabled]="statusCargando">
+              {{ statusCargando ? 'Filtrando...' : 'Filtrar' }}
+            </button>
           </div>
         </div>
 
@@ -67,7 +66,7 @@
                 <strong>{{ p.nombre }}</strong>
                 <span class="status-chip-green" *ngIf="p.estado_paquete === 'ACTIVO'">ACTIVO</span>
                 <span class="status-chip-yellow" *ngIf="p.estado_paquete === 'EN PROCESO'">EN PROCESO</span>
-                <span class="status-chip-red" *ngIf="p.estado_paquete === 'FINALIZADO'">FINALIZADO</span>
+                <span class="status-chip-red" *ngIf="p.estado_paquete === 'ENTREGADO'">ENTREGADO</span>
               </div>
               <small>Rend.: {{ p.rendimiento | number:'1.1-2' }}%</small>
             </button>
@@ -109,7 +108,7 @@
                 <td style="font-weight: bold;">
                   <span class="status-chip-green" *ngIf="fila.estado_paquete === 'ACTIVO'">ACTIVO</span>
                   <span class="status-chip-yellow" *ngIf="fila.estado_paquete === 'EN PROCESO'">EN PROCESO</span>
-                  <span class="status-chip-red" *ngIf="fila.estado_paquete === 'FINALIZADO'">FINALIZADO</span>
+                  <span class="status-chip-red" *ngIf="fila.estado_paquete === 'ENTREGADO'">ENTREGADO</span>
                   <span class="status-chip-gray" *ngIf="!fila.estado_paquete">SIN INICIAR</span>
                 </td>
                 <td style="text-align: right;">
@@ -165,7 +164,7 @@
                 <td>
                   <span class="status-chip-green" *ngIf="fila.estado_paquete === 'ACTIVO'">ACTIVO</span>
                   <span class="status-chip-yellow" *ngIf="fila.estado_paquete === 'EN PROCESO'">EN PROCESO</span>
-                  <span class="status-chip-red" *ngIf="fila.estado_paquete === 'FINALIZADO'">FINALIZADO</span>
+                  <span class="status-chip-red" *ngIf="fila.estado_paquete === 'ENTREGADO'">ENTREGADO</span>
                   <span *ngIf="!fila.estado_paquete">-</span>
                 </td>
                 <td>{{ fila.fecha_creacion ? (fila.fecha_creacion | date:'shortDate') : '-' }}</td>
@@ -210,6 +209,7 @@
       </div>
     </div>
 
+    <!-- El panel admin se renderiza como subvista para reutilizar la lógica del componente raíz. -->
     <app-admin-panel [host]="appHost"></app-admin-panel>
 
     <div *ngIf="rolActual === 'analista'" class="analista-panel">
@@ -222,20 +222,23 @@
         </div>
 
         <div class="analista-package-inline-form" *ngIf="!paqueteAnalistaActivo; else paqueteActivoInline">
-          <input [(ngModel)]="paqueteAnalistaNombre" placeholder="Nombre del paquete" class="analista-input-lg">
-          <select [(ngModel)]="nuevoPaqueteTipo" class="analista-input-lg analista-type-select">
-            <option value="GENERAL">GENERAL</option>
-            <option value="ESPECIFICO">ESPECIFICO</option>
-            <option value="AMBOS">AMBOS</option>
-          </select>
-          <button (click)="activarPaqueteAnalista()" class="analista-primary-btn">Crear y activar</button>
+          <div class="analista-package-create-card analista-package-create-card-main">
+            <div class="analista-package-create-head">
+              <span class="analista-package-inline-label">Crear paquete</span>
+              <small>Modo general - Flujo principal recomendado</small>
+            </div>
+            <input [(ngModel)]="nuevoPaqueteGeneralNombre" placeholder="Nombre del paquete" class="analista-input-lg">
+            <input type="number" min="0" [(ngModel)]="nuevoPaqueteGeneralCantidadPromos" (focus)="seleccionarNumeroEntero($event)" placeholder="Cantidad de promociones" class="analista-input-lg">
+            <button (click)="activarPaqueteAnalista('GENERAL', nuevoPaqueteGeneralNombre, nuevoPaqueteGeneralCantidadPromos)" class="analista-primary-btn">Crear paquete general</button>
+            <small class="analista-note">La cantidad de promociones quedará fija dentro del paquete.</small>
+          </div>
         </div>
 
         <ng-template #paqueteActivoInline>
           <div class="analista-package-inline-active">
             <span class="analista-package-inline-chip">{{ estadoPaqueteMenuPrincipal }}</span>
             <span class="analista-package-inline-chip">Estado: {{ estadoPaqueteActual }}</span>
-            <span class="analista-package-inline-chip">Modo: {{ modoTrabajo }}</span>
+            <span class="analista-package-inline-chip" *ngIf="paqueteAnalistaCantidadPromos !== null">Promociones: {{ paqueteAnalistaCantidadPromos }}</span>
             <span class="analista-package-inline-chip" *ngIf="paqueteBloqueadoEdicion">Edición bloqueada</span>
             <button (click)="volverASeleccionPaquetes()" class="analista-secondary-btn">Volver</button>
           </div>
@@ -256,20 +259,7 @@
         </div>
 
         <div class="analista-package-columns">
-          <div class="analista-package-column">
-            <div class="analista-package-column-title">ESPECIFICO ({{ paquetesEspecificosFiltrados.length }})</div>
-            <div class="analista-package-vertical-list" *ngIf="paquetesEspecificosFiltrados.length; else sinEspecificoTpl">
-              <button *ngFor="let paquete of paquetesEspecificosFiltrados" type="button" class="analista-package-chip analista-package-chip-vertical" [class.analista-package-chip-active]="paquete === paqueteAnalistaNombre && paqueteAnalistaActivo" (click)="abrirPaqueteGuardadoEnModo(paquete, 'ESPECIFICO')">
-                <span class="analista-package-chip-name">{{ paquete }}</span>
-                <span class="analista-package-chip-status status-chip-green" *ngIf="estadoPaqueteGuardado(paquete) === 'ACTIVO'">ACTIVO</span>
-                <span class="analista-package-chip-status status-chip-yellow" *ngIf="estadoPaqueteGuardado(paquete) === 'EN PROCESO'">EN PROCESO</span>
-                <span class="analista-package-chip-status status-chip-red" *ngIf="estadoPaqueteGuardado(paquete) === 'FINALIZADO'">FINALIZADO</span>
-              </button>
-            </div>
-            <ng-template #sinEspecificoTpl>
-              <p class="analista-package-empty">Sin paquetes específicos</p>
-            </ng-template>
-          </div>
+          <!-- ESPECIFICO package column removed -->
 
           <div class="analista-package-column">
             <div class="analista-package-column-title">GENERAL ({{ paquetesGeneralesFiltrados.length }})</div>
@@ -278,7 +268,7 @@
                 <span class="analista-package-chip-name">{{ paquete }}</span>
                 <span class="analista-package-chip-status status-chip-green" *ngIf="estadoPaqueteGuardado(paquete) === 'ACTIVO'">ACTIVO</span>
                 <span class="analista-package-chip-status status-chip-yellow" *ngIf="estadoPaqueteGuardado(paquete) === 'EN PROCESO'">EN PROCESO</span>
-                <span class="analista-package-chip-status status-chip-red" *ngIf="estadoPaqueteGuardado(paquete) === 'FINALIZADO'">FINALIZADO</span>
+                <span class="analista-package-chip-status status-chip-red" *ngIf="estadoPaqueteGuardado(paquete) === 'ENTREGADO'">ENTREGADO</span>
               </button>
             </div>
             <ng-template #sinGeneralTpl>
@@ -288,43 +278,57 @@
         </div>
       </section>
 
-      <section *ngIf="paqueteAnalistaActivo; else analistaBloqueado" class="analista-mode-card">
+      <section *ngIf="!paqueteAnalistaActivo && paquetesGuardados.length" class="analista-packages-card">
+        <!-- Crear paquete específico removed -->
+      </section>
+
+      <ng-container *ngIf="paqueteAnalistaActivo">
+      <div class="analista-mode-card">
         <div class="analista-context-row">
           <span><strong>Paquete:</strong> {{ paqueteAnalistaNombre }}</span>
-          <span><strong>Modo:</strong> {{ modoTrabajo }}</span>
+          <span><strong>Promociones:</strong> {{ paqueteAnalistaCantidadPromos }}</span>
           <span><strong>Estado:</strong> {{ estadoPaqueteActual }}</span>
         </div>
 
-        <div class="analista-timer-box analista-timer-box-shared">
-          <div class="analista-timer-main">
-            <span class="analista-timer-label">{{ modoTrabajo === 'ESPECIFICO' ? 'Acumulado usuarios' : 'Acumulado seleccionados' }}</span>
-            <h1>{{ formatearCrono(modoTrabajo === 'ESPECIFICO' ? segundosAcumuladosUsuarios : segundosAcumuladosSeleccionadosGeneral) }}</h1>
-            <p class="analista-session-meta" *ngIf="sesionInicioIso">Inicio: {{ sesionInicioIso | date:'short' }}</p>
-            <p class="analista-session-meta" *ngIf="sesionFinIso">Fin: {{ sesionFinIso | date:'short' }}</p>
+        <div *ngIf="modoTrabajo === 'GENERAL' && usuariosSeleccionadosGeneral.length" class="analista-work-card analista-work-card-individual">
+          <div class="analista-work-head">
+            <h3>Acumulación individual</h3>
+            <span class="analista-work-tag">Tiempo por analista</span>
           </div>
-          <div class="analista-timer-actions analista-timer-note">
-            <span>El control de tiempo es individual por analista en ambos modos.</span>
-          </div>
-        </div>
-
-        <div class="analista-user-session-actions" style="margin-bottom: 12px;">
-          <button (click)="iniciarTodosCronometros()" class="analista-primary-btn" [disabled]="paqueteBloqueadoEdicion || !puedeIniciarTodosCronometros">INICIAR TODOS</button>
-          <button (click)="pausarTodosCronometros()" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !puedePausarTodosCronometros">PAUSAR TODOS</button>
-          <button (click)="finalizarTodosCronometros()" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !puedeFinalizarTodosCronometros">FINALIZAR TODOS</button>
-        </div>
-
-        <div class="analista-top-breakdown" *ngIf="modoTrabajo === 'ESPECIFICO' && detalleAcumuladoUsuarios.length">
-          <div class="analista-top-breakdown-item" *ngFor="let detalle of detalleAcumuladoUsuarios">
-            <div>
-              <strong>{{ detalle.nombre }}</strong>
-              <small class="analista-top-breakdown-state" [class.analista-top-breakdown-state-active]="detalle.activo">
-                {{ detalle.activo ? 'Activo' : 'Finalizado' }}
-              </small>
+          <div class="analista-top-breakdown">
+            <div class="analista-general-session-item" *ngFor="let u of usuariosSeleccionadosGeneral" [class.selected]="idsSeleccionados.includes(u.id)">
+              <div class="analista-general-card-head">
+                <strong>{{ u.nombre }}</strong>
+                <span class="analista-session-state" [class.active]="sesionUsuarioActiva(u.id)" [class.done]="sesionUsuarioFinalizada(u.id)">
+                  {{ sesionUsuarioFinalizada(u.id) ? 'Entregado' : (sesionUsuarioActiva(u.id) ? 'Activo' : 'Pendiente') }}
+                </span>
+              </div>
+              <div class="analista-general-card-meta">
+                <small>Tiempo acumulado</small>
+                <span>{{ formatearHorasDesdeSegundos(obtenerSegundosSesionUsuario(u.id)) }}</span>
+                <small>Promos asignadas: {{ obtenerPromosAsignadasGeneral(u.id) }}</small>
+                <small>Tiempo programación: {{ formatearCrono((obtenerTiempoProgramacionUsuario(u.id)) * 60) }}</small>
+              </div>
             </div>
-            <span>{{ formatearCrono(detalle.segundos) }}</span>
-            <small>Inicio: {{ formatearFechaSesion(detalle.inicio) }}</small>
-            <small>Fin: {{ formatearFechaSesion(detalle.fin) }}</small>
           </div>
+        </div>
+
+        <div class="analista-timer-box analista-timer-box-shared">
+          <div class="analista-timer-actions analista-timer-note">
+            <ng-container *ngIf="modoTrabajo === 'GENERAL'; else notaControlTiempoTpl">
+              <div class="analista-estimado-paquete-box">
+                <span class="analista-estimado-paquete-label">Tiempo estimado del paquete</span>
+                <strong>{{ formatearHorasDesdeSegundos(tiempoEstimadoPaqueteSegundosGeneral) }}</strong>
+              </div>
+            </ng-container>
+            <ng-template #notaControlTiempoTpl>
+              <span>El control de tiempo es individual por analista en ambos modos.</span>
+            </ng-template>
+          </div>
+        </div>
+
+        <div *ngIf="modoTrabajo === 'GENERAL' && mostrarInicioConteoGeneral" class="analista-user-session-actions" style="margin-bottom: 12px;">
+          <button (click)="iniciarTodosCronometros()" class="analista-primary-btn" [disabled]="paqueteBloqueadoEdicion || !puedeIniciarTodosCronometros">INICIAR CONTEO</button>
         </div>
 
         <div *ngIf="modoTrabajo === 'GENERAL'" class="analista-work-card">
@@ -333,155 +337,319 @@
             <span class="analista-work-tag">Lote</span>
           </div>
 
-          <div class="analista-general-status" *ngIf="estadoComparativoGeneral.length">
-            <div class="analista-general-status-row" *ngFor="let item of estadoComparativoGeneral">
-              <div>
-                <strong>{{ item.nombre }}</strong>
-                <small>{{ item.promos }} promos</small>
-              </div>
-              <div>
-                <small>Meta: {{ item.meta | number:'1.1-2' }} min</small>
-              </div>
-            </div>
-          </div>
-
-          <div class="analista-step-card">
-            <p class="analista-section-label">Paso 1. Total de promociones</p>
-            <div class="analista-form-grid">
-              <input [(ngModel)]="nombreLote" placeholder="Nombre del paquete general..." class="analista-input-lg" [disabled]="paqueteBloqueadoEdicion">
-              <input type="number" [(ngModel)]="unidadesLoteGeneral" (ngModelChange)="onUnidadesTotalesGeneralChange()" placeholder="Promociones totales" class="analista-input-lg" [disabled]="paqueteBloqueadoEdicion || totalPromocionesGeneralFijado">
-              <button type="button" class="analista-secondary-btn" (click)="toggleTotalPromocionesGeneralFijado()" [disabled]="paqueteBloqueadoEdicion || !unidadesLoteGeneral">
-                {{ totalPromocionesGeneralFijado ? 'Liberar total' : 'Fijar total' }}
-              </button>
-            </div>
-            <small class="analista-note" *ngIf="!unidadesLoteGeneral">Primero digita el total de promociones. Luego puedes fijarlo o liberarlo con el botón.</small>
-            <small class="analista-note" *ngIf="totalPromocionesGeneralFijado">Total de promociones fijado. Usa el botón para volverlo editable.</small>
-          </div>
-
-          <div class="analista-step-card" [class.analista-step-disabled]="!pasoGeneralParticipantesHabilitado">
-            <p class="analista-section-label">Paso 2. Seleccionar participantes</p>
+          <div *ngIf="!participantesFijados" class="analista-step-card" [class.analista-step-disabled]="!pasoGeneralParticipantesHabilitado">
+            <p class="analista-section-label">Paso 1. Seleccionar participantes</p>
             <div class="analista-chip-grid">
-              <button *ngFor="let u of usuarios" (click)="toggleSeleccionAnalista(u.id)" [disabled]="paqueteBloqueadoEdicion || !pasoGeneralParticipantesHabilitado" [class.analista-chip-active]="idsSeleccionados.includes(u.id)" class="analista-chip">
+              <button *ngFor="let u of usuarios" (click)="toggleSeleccionAnalista(u.id)" [disabled]="paqueteBloqueadoEdicion || !pasoGeneralParticipantesHabilitado || participantesFijados" [class.analista-chip-active]="idsSeleccionados.includes(u.id)" class="analista-chip">
                 {{u.nombre}}
               </button>
             </div>
+            <div class="analista-fixed-message analista-fixed-message-neutral" *ngIf="!participantesFijados && idsSeleccionados.length > 0">
+              <strong>Selección lista</strong>
+              <span>Fíjala para evitar cambios accidentales.</span>
+            </div>
+            <div class="analista-fixed-message analista-fixed-message-success" *ngIf="participantesFijados">
+              <strong>✓ Participantes fijados</strong>
+              <span>No se puede modificar la selección hasta reiniciar el paquete.</span>
+            </div>
+            <div class="analista-reparto-actions" *ngIf="!paqueteBloqueadoEdicion && !participantesFijados && idsSeleccionados.length > 0">
+              <button (click)="fijarParticipantesGeneral()" class="analista-primary-btn">FIJAR PARTICIPANTES</button>
+            </div>
           </div>
 
-          <div class="analista-step-card" [class.analista-step-disabled]="!pasoGeneralRepartoHabilitado">
+          <div *ngIf="participantesFijados && tiposPromocionesFijadas && !repartoFijado" class="analista-step-card" [class.analista-step-disabled]="!pasoGeneralRepartoHabilitado">
             <p class="analista-section-label">Paso 3. Reparto de promociones</p>
+            <div class="analista-fixed-message analista-fixed-message-neutral">
+              <strong>Promociones a repartir</strong>
+              <span>{{ paqueteAnalistaCantidadPromos || 0 }} promociones en total.</span>
+            </div>
             <div class="analista-distribucion-switch">
-              <button class="analista-secondary-btn" [class.analista-distribucion-active]="modoRepartoGeneral === 'PROMEDIO'" [disabled]="paqueteBloqueadoEdicion || !pasoGeneralRepartoHabilitado" (click)="setModoRepartoGeneral('PROMEDIO')">Promedio</button>
-              <button class="analista-secondary-btn" [class.analista-distribucion-active]="modoRepartoGeneral === 'MANUAL'" [disabled]="paqueteBloqueadoEdicion || !pasoGeneralRepartoHabilitado" (click)="setModoRepartoGeneral('MANUAL')">Manual</button>
+              <button class="analista-secondary-btn" [class.analista-distribucion-active]="modoRepartoGeneral === 'PROMEDIO'" [disabled]="paqueteBloqueadoEdicion || !pasoGeneralRepartoHabilitado || repartoFijado" (click)="setModoRepartoGeneral('PROMEDIO')">Automático</button>
+              <button class="analista-secondary-btn" [class.analista-distribucion-active]="modoRepartoGeneral === 'MANUAL'" [disabled]="paqueteBloqueadoEdicion || !pasoGeneralRepartoHabilitado || repartoFijado" (click)="setModoRepartoGeneral('MANUAL')">Manual</button>
             </div>
 
-            <p class="analista-reparto-summary">Asignadas: {{ totalAsignadoGeneral }} / {{ unidadesLoteGeneral || 0 }} | Restantes: {{ promocionesRestantesGeneral }}</p>
-
-            <div class="analista-general-session-list" *ngIf="usuariosSeleccionadosGeneral.length">
-            <div class="analista-general-session-item" *ngFor="let u of usuariosSeleccionadosGeneral" [class.selected]="idsSeleccionados.includes(u.id)">
-              <div class="analista-general-session-head">
-                <strong>{{ u.nombre }}</strong>
-                <span class="analista-session-state" [class.active]="sesionUsuarioActiva(u.id)" [class.done]="sesionUsuarioFinalizada(u.id)">
-                  {{ sesionUsuarioFinalizada(u.id) ? 'Finalizado' : (sesionUsuarioActiva(u.id) ? 'En curso' : 'Sin iniciar') }}
-                </span>
+            <div class="analista-distribution-grid">
+              <div class="analista-dist-header">
+                <div class="analista-dist-col-analista">Analista</div>
+                <div *ngFor="let promo of promocionesSeleccionadasGeneral" class="analista-dist-col-promo">
+                  {{ promo.nombre }}
+                </div>
               </div>
 
-              <div class="analista-general-distribucion-row">
-                <label>Promos asignadas</label>
-                <input type="number" min="0" [disabled]="paqueteBloqueadoEdicion || modoRepartoGeneral === 'PROMEDIO'" [(ngModel)]="unidadesPorUsuarioGeneral[u.id]" (ngModelChange)="onUnidadesUsuarioGeneralChange(u.id)" class="analista-qty-input">
-              </div>
-
-              <div class="analista-user-session-meta">
-                <span>Inicio: {{ formatearFechaSesion(obtenerSesionUsuario(u.id)?.started_at) }}</span>
-                <span>Fin: {{ formatearFechaSesion(obtenerSesionUsuario(u.id)?.ended_at) }}</span>
-                <span>Duración: {{ formatearCrono(obtenerSegundosSesionUsuario(u.id)) }}</span>
-                <span>Meta estimada: {{ (unidadesPorUsuarioGeneral[u.id] || 0) * (u.tiempo_general || 0) | number:'1.1-2' }} min</span>
-              </div>
-
-              <div class="analista-user-session-actions">
-                <button (click)="iniciarSesionUsuario(u)" class="analista-primary-btn" [disabled]="paqueteBloqueadoEdicion || sesionUsuarioActiva(u.id) || sesionUsuarioFinalizada(u.id)">
-                  {{ sesionUsuarioFinalizada(u.id) ? 'FINALIZADO' : (sesionUsuarioActiva(u.id) ? 'YA INICIO' : 'INICIAR') }}
-                </button>
-                <button (click)="pausarSesionUsuario(u)" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !sesionUsuarioActiva(u.id) || sesionUsuarioFinalizada(u.id)">PAUSAR</button>
-                <button (click)="finalizarSesionUsuario(u)" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !sesionUsuarioActiva(u.id) || sesionUsuarioFinalizada(u.id)">FINALIZAR</button>
+              <div *ngFor="let u of usuariosSeleccionadosGeneral" class="analista-dist-row">
+                <div class="analista-dist-col-analista">
+                  {{ u.nombre }}
+                </div>
+                <div *ngFor="let promo of promocionesSeleccionadasGeneral" class="analista-dist-col-promo">
+                  <input
+                    type="number"
+                    min="0"
+                    [ngModel]="unidadesPorUsuarioGeneral[u.id]?.[promo.id] || 0"
+                    (ngModelChange)="onUnidadesUsuarioGeneralChange(u.id, promo.id, $event)"
+                    [readonly]="modoRepartoGeneral === 'PROMEDIO' || paqueteBloqueadoEdicion || repartoFijado"
+                    class="analista-dist-input"
+                  >
+                    <div class="analista-dist-tiempo" *ngIf="registroCantidades && registroCantidades[u.id] && registroCantidades[u.id][promo.id] !== undefined">
+                      <small>({{ registroCantidades[u.id][promo.id] }} min)</small>
+                    </div>
+                </div>
               </div>
             </div>
+
+            <p class="analista-reparto-summary">Asignadas: {{ totalAsignadoGeneral }} / {{ paqueteAnalistaCantidadPromos || 0 }} | Restantes: {{ promocionesRestantesGeneral }}</p>
+            <div class="analista-fixed-message analista-fixed-message-warning" *ngIf="!repartoFijado && totalAsignadoGeneral < (paqueteAnalistaCantidadPromos || 0)">
+              <strong>⚠️ Reparto incompleto</strong>
+              <span>Todas las {{ paqueteAnalistaCantidadPromos }} promociones deben estar asignadas para fijar.</span>
+            </div>
+            <div class="analista-fixed-message analista-fixed-message-warning" *ngIf="!repartoFijado && totalAsignadoGeneral > (paqueteAnalistaCantidadPromos || 0)">
+              <strong>⚠️ Exceso de promociones asignadas</strong>
+              <span>Has asignado {{ totalAsignadoGeneral }} promociones, pero el paquete permite {{ paqueteAnalistaCantidadPromos || 0 }}. Corrige la distribución antes de continuar.</span>
+            </div>
+            <div class="analista-fixed-message analista-fixed-message-success" *ngIf="repartoFijado">
+              <strong>✓ Reparto fijado</strong>
+              <span>No se puede cambiar hasta reiniciar el paquete.</span>
+            </div>
+
+            <div class="analista-reparto-actions" *ngIf="!paqueteBloqueadoEdicion && !repartoFijado">
+              <button (click)="fijarReportoGeneral()" [disabled]="totalAsignadoGeneral !== (paqueteAnalistaCantidadPromos || 0)" class="analista-primary-btn">FIJAR REPARTO</button>
             </div>
           </div>
 
-          <div class="analista-general-meta">
-            <p>Meta Grupal: {{ metaGeneralPlural | number:'1.1-2' }} min</p>
+          <div id="analista-paso-2" *ngIf="participantesFijados && !tiposPromocionesFijadas" class="analista-step-card" [class.analista-step-disabled]="!pasoGeneralTiposHabilitado">
+            <p class="analista-section-label">Paso 2. Seleccionar tipos de promoción</p>
+            <div class="analista-chip-grid">
+              <button *ngFor="let t of promocionesDisponiblesGeneral" (click)="toggleTipoPromocionGeneral(t.id)" [disabled]="paqueteBloqueadoEdicion || tiposPromocionesFijadas" [class.analista-chip-active]="tiposPromocionesSeleccionadas.includes(t.id)" class="analista-chip">
+                {{ t.nombre }}
+              </button>
+            </div>
+            <div class="analista-reparto-actions" *ngIf="!paqueteBloqueadoEdicion">
+              <button (click)="fijarTiposPromocionesGeneral()" class="analista-primary-btn">FIJAR TIPOS</button>
+            </div>
+          </div>
+
+          <div *ngIf="participantesFijados && repartoFijado" class="analista-general-meta">
+            <div *ngIf="modoTrabajo === 'GENERAL' && mostrarEdicionGeneral" class="analista-mini-menu-row analista-mini-menu-row-inline">
+              <span class="analista-work-tag selected">Listo para contar</span>
+              <button (click)="editarParticipantesGeneral()" class="analista-secondary-btn">Editar participantes</button>
+              <button (click)="editarRepartoGeneral()" class="analista-secondary-btn">Editar promos distribuidas</button>
+              <button (click)="irAPaso2Tipos()" class="analista-secondary-btn">Editar tipo de promoción</button>
+            </div>
+
+            <!-- Editor inline eliminado: ahora se usa el Paso 2 del flujo del paquete -->
+            <div *ngIf="conteoGeneralIniciado && usuariosSeleccionadosGeneral.length" class="analista-general-session-list">
+              <div class="analista-general-session-item" *ngFor="let u of usuariosSeleccionadosGeneral" [class.selected]="idsSeleccionados.includes(u.id)">
+                <div class="analista-general-card-head">
+                  <strong>{{ u.nombre }}</strong>
+                  <span class="analista-session-state" [class.active]="sesionUsuarioActiva(u.id)" [class.done]="sesionUsuarioFinalizada(u.id)">
+                    {{ sesionUsuarioFinalizada(u.id) ? 'Entregado' : (sesionUsuarioActiva(u.id) ? 'Activo' : 'Pendiente') }}
+                  </span>
+                </div>
+                <div class="analista-general-card-meta">
+                  <label>Promos</label>
+                  <input type="number" min="0" [disabled]="paqueteBloqueadoEdicion || repartoFijado || modoRepartoGeneral === 'PROMEDIO'" [value]="obtenerPromosAsignadasGeneral(u.id)" readonly class="analista-qty-input analista-general-card-input">
+                  <small>Tiempo programación: {{ formatearCrono((obtenerTiempoProgramacionUsuario(u.id)) * 60) }}</small>
+                  <div class="analista-time-breakdown" *ngIf="obtenerDetalleTiempoUsuario(u.id).length">
+                    <small>Desglose:</small>
+                    <ul>
+                      <li *ngFor="let d of obtenerDetalleTiempoUsuario(u.id)">{{ d.promoNombre }}: {{ d.unidades }} × {{ d.tiempoMin }}min = {{ d.subtotalMin }} min</li>
+                    </ul>
+                  </div>
+                  <small>{{ sesionUsuarioFinalizada(u.id) ? 'Entregado en' : 'Duración' }}: {{ formatearHorasDesdeSegundos(obtenerSegundosSesionUsuario(u.id)) }}</small>
+                </div>
+                <button (click)="finalizarSesionUsuario(u)" class="analista-secondary-btn analista-general-card-action" [disabled]="paqueteBloqueadoEdicion || !sesionUsuarioActiva(u.id) || sesionUsuarioFinalizada(u.id)">{{ sesionUsuarioFinalizada(u.id) ? 'ENTREGADO' : 'ENTREGAR' }}</button>
+              </div>
+            </div>
+            <div *ngIf="conteoGeneralIniciado" class="analista-user-session-actions analista-user-session-actions-end" style="margin-top: 12px;">
+              <button (click)="finalizarTodosCronometros()" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !puedeFinalizarTodosCronometros">ENTREGAR TODO</button>
+            </div>
             <small class="analista-note" *ngIf="!paqueteBloqueadoEdicion && idsSeleccionados.length > 0 && !flujoCronometrosGeneralCompleto">
-              Para habilitar GUARDAR LOTE, todos los seleccionados deben INICIAR y FINALIZAR su cronómetro.
+              Para habilitar GUARDAR LOTE, todos los seleccionados deben INICIAR y ENTREGAR su cronómetro.
             </small>
             <button *ngIf="!paqueteBloqueadoEdicion" (click)="finalizarLoteGeneral()" [disabled]="idsSeleccionados.length === 0 || !flujoCronometrosGeneralCompleto" class="analista-secondary-btn">GUARDAR LOTE</button>
             <button *ngIf="paqueteBloqueadoEdicion" (click)="reiniciarPaqueteGuardado()" class="analista-secondary-btn">REINICIAR PAQUETE</button>
           </div>
         </div>
 
-        <div *ngIf="modoTrabajo === 'ESPECIFICO'" class="analista-work-card">
+        <div *ngIf="false" class="analista-work-card analista-work-card-specifico">
           <div class="analista-work-head">
-            <h3>Modo Específico</h3>
-            <span class="analista-work-tag">Matriz</span>
+            <h3>Conteo Específico (Plural)</h3>
+            <span class="analista-work-tag">Paso a Paso</span>
           </div>
 
-          <div class="analista-summary-box">
+          <div class="analista-summary-box analista-summary-box-specific">
             <div>
-              <small>TOTAL GENERAL</small><br>
-              <span>{{ sumaGeneralGlobal }} min</span>
+              <small>ANALISTAS SELECCIONADOS</small><br>
+              <span>{{ idsSeleccionadosEspecifico.length }}</span>
             </div>
             <div>
               <small>PAQUETE ACTIVO</small><br>
               <span>{{ paqueteAnalistaNombre }}</span>
             </div>
+            <div>
+              <small>MODO REPARTO</small><br>
+              <span>{{ modoRepartoEspecifico === 'PROMEDIO' ? 'AUTOMÁTICO' : 'MANUAL' }}</span>
+            </div>
           </div>
 
-          <div *ngFor="let u of usuarios" class="analista-user-block">
-            <div (click)="toggleUsuario(u.id)" class="analista-user-header">
-              <span><b>👤 {{ u.nombre }}</b> - Est. {{ calcularTiempoUsuario(u) }} min | Real {{ formatearCrono(obtenerSegundosSesionUsuario(u.id)) }}</span>
-              <button class="analista-mini-btn">{{ usuariosAbiertos[u.id] ? 'CERRAR' : 'DIGITAR' }}</button>
+          <div *ngIf="false" class="analista-user-session-actions" style="margin-bottom: 12px;">
+            <button (click)="iniciarTodosCronometros()" class="analista-primary-btn" [disabled]="paqueteBloqueadoEdicion || !puedeIniciarTodosCronometros">INICIAR CONTEO</button>
+          </div>
+
+          <!-- PASO 1: SELECCIONAR PARTICIPANTES -->
+          <div *ngIf="!participantesFijadosEspecifico" class="analista-step-section">
+            <div class="analista-step-header" [class.analista-step-locked]="participantesFijadosEspecifico">
+              <span class="analista-step-number">PASO 1</span>
+              <span class="analista-step-title">Seleccionar Participantes</span>
+              <span *ngIf="participantesFijadosEspecifico" class="analista-step-status">✓ FIJADO</span>
             </div>
 
-            <div *ngIf="usuariosAbiertos[u.id]" class="analista-user-body">
-              <div class="analista-user-session-row">
-                <div class="analista-user-session-meta">
-                  <span><strong>Paquete:</strong> {{ paqueteAnalistaNombre }}</span>
-                  <span>Inicio: {{ formatearFechaSesion(obtenerSesionUsuario(u.id)?.started_at) }}</span>
-                  <span>Fin: {{ formatearFechaSesion(obtenerSesionUsuario(u.id)?.ended_at) }}</span>
-                  <span>Duración: {{ formatearCrono(obtenerSegundosSesionUsuario(u.id)) }}</span>
-                  <span *ngIf="sesionUsuarioFinalizada(u.id)"><strong>Estado:</strong> Finalizado (bloqueado)</span>
-                </div>
-                <div class="analista-user-session-actions">
-                  <button (click)="$event.stopPropagation(); iniciarSesionUsuario(u)" class="analista-primary-btn" [disabled]="paqueteBloqueadoEdicion || sesionUsuarioActiva(u.id) || sesionUsuarioFinalizada(u.id)">{{ sesionUsuarioFinalizada(u.id) ? 'FINALIZADO' : (sesionUsuarioActiva(u.id) ? 'YA INICIO' : 'INICIAR') }}</button>
-                  <button (click)="$event.stopPropagation(); pausarSesionUsuario(u)" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !sesionUsuarioActiva(u.id)">PAUSAR</button>
-                  <button (click)="$event.stopPropagation(); finalizarSesionUsuario(u)" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !sesionUsuarioActiva(u.id) || sesionUsuarioFinalizada(u.id)">FINALIZAR</button>
+            <div class="analista-step-body">
+              <div class="analista-participants-list">
+                <div *ngFor="let u of usuarios" class="analista-participant-item">
+                  <input 
+                    type="checkbox" 
+                    [checked]="idsSeleccionadosEspecifico.includes(u.id)"
+                    (change)="toggleUsuarioEspecifico(u.id)"
+                    [disabled]="paqueteBloqueadoEdicion || participantesFijadosEspecifico"
+                  >
+                  <label>{{ u.nombre }}</label>
                 </div>
               </div>
 
-              <div *ngFor="let cat of objectKeys(promosAgrupadas)" class="analista-category-block">
-                <div class="analista-category-tag">{{ cat }}</div>
-                <div class="analista-promo-grid">
-                  <div *ngFor="let p of promosAgrupadas[cat]" class="analista-promo-card">
-                    <span>{{ p.nombre }}</span>
-                    <input type="number" [(ngModel)]="registroCantidades[u.id][p.id]" (ngModelChange)="guardarDatos()" class="analista-qty-input" [disabled]="paqueteBloqueadoEdicion || sesionUsuarioFinalizada(u.id)">
+              <div class="analista-step-actions">
+                <button 
+                  (click)="fijarParticipantesEspecifico()" 
+                  class="analista-primary-btn"
+                  [disabled]="paqueteBloqueadoEdicion || idsSeleccionadosEspecifico.length === 0"
+                >
+                  FIJAR PARTICIPANTES
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO 2: FIJAR DISTRIBUCIÓN DE PROMOCIONES -->
+          <div class="analista-step-section" *ngIf="participantesFijadosEspecifico && !repartoFijadoEspecifico">
+            <div class="analista-step-header" [class.analista-step-locked]="repartoFijadoEspecifico">
+              <span class="analista-step-number">PASO 2</span>
+              <span class="analista-step-title">Distribuir Promociones</span>
+              <span *ngIf="repartoFijadoEspecifico" class="analista-step-status">✓ FIJADO</span>
+            </div>
+
+            <div class="analista-step-body" *ngIf="!repartoFijadoEspecifico || !paqueteBloqueadoEdicion">
+              <!-- Selector de Modo Reparto -->
+              <div class="analista-mode-selector">
+                <button 
+                  (click)="setModoRepartoEspecifico('PROMEDIO')"
+                  class="analista-mode-btn"
+                  [class.analista-mode-active]="modoRepartoEspecifico === 'PROMEDIO'"
+                  [disabled]="paqueteBloqueadoEdicion || repartoFijadoEspecifico"
+                >
+                  AUTOMÁTICO
+                </button>
+                <button 
+                  (click)="setModoRepartoEspecifico('MANUAL')"
+                  class="analista-mode-btn"
+                  [class.analista-mode-active]="modoRepartoEspecifico === 'MANUAL'"
+                  [disabled]="paqueteBloqueadoEdicion || repartoFijadoEspecifico"
+                >
+                  MANUAL
+                </button>
+              </div>
+
+              <!-- Grid de Distribución -->
+              <div class="analista-distribution-grid">
+                <div class="analista-dist-header">
+                  <div class="analista-dist-col-analista">Analista</div>
+                  <div *ngFor="let promo of configuracionPromos" class="analista-dist-col-promo">
+                    {{ promo.nombre }}
+                  </div>
+                </div>
+
+                <div *ngFor="let uId of idsSeleccionadosEspecifico" class="analista-dist-row">
+                  <div class="analista-dist-col-analista">
+                    {{ obtenerUsuarioPorId(uId)?.nombre }}
+                  </div>
+                  <div *ngFor="let promo of configuracionPromos" class="analista-dist-col-promo">
+                    <input 
+                      type="number" 
+                      min="0"
+                      [ngModel]="unidadesPorUsuarioEspecifico[uId]?.[promo.id]"
+                      (ngModelChange)="actualizarDistribucionEspecifica(uId, promo.id, $event)"
+                      [readonly]="modoRepartoEspecifico === 'PROMEDIO' || paqueteBloqueadoEdicion || repartoFijadoEspecifico"
+                      class="analista-dist-input"
+                    >
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
+              <div class="analista-reparto-summary-row">
+                <p class="analista-reparto-summary">Asignadas: {{ totalAsignadoEspecifico }} / {{ paqueteAnalistaCantidadPromos || 0 }} | Restantes: {{ promocionesRestantesEspecifico }}</p>
+                <div class="analista-fixed-message analista-fixed-message-warning" *ngIf="totalAsignadoEspecifico < (paqueteAnalistaCantidadPromos || 0)">
+                  <span>Debes completar la distribución antes de fijarla.</span>
+                </div>
+              </div>
+
+              <div class="analista-step-actions">
+                <button 
+                  (click)="fijarRepartoEspecifico()" 
+                  class="analista-primary-btn"
+                  [disabled]="paqueteBloqueadoEdicion || repartoFijadoEspecifico || totalAsignadoEspecifico !== (paqueteAnalistaCantidadPromos || 0)"
+                >
+                  FIJAR DISTRIBUCIÓN
+                </button>
+              </div>
+            </div>
+
+            <!-- SECCIÓN DE SEGUIMIENTO POR ANALISTA -->
+            <div class="analista-step-section" *ngIf="participantesFijadosEspecifico && repartoFijadoEspecifico">
+              <div class="analista-step-header">
+                <span class="analista-step-number">SEGUIMIENTO</span>
+                <span class="analista-step-title">Tiempo Real por Analista</span>
+              </div>
+
+              <div *ngIf="mostrarEdicionEspecifico" class="analista-mini-menu-row analista-mini-menu-row-inline">
+                <span class="analista-work-tag selected">Listo para contar</span>
+                <button (click)="editarParticipantesEspecifico()" class="analista-secondary-btn">Editar participantes</button>
+                  <button (click)="editarRepartoEspecifico()" class="analista-secondary-btn">Editar promos distribuidas</button>
+                  <button (click)="irAPaso2Tipos()" class="analista-secondary-btn">Editar tipo de promoción</button>
+              </div>
+
+              <div *ngIf="conteoEspecificoIniciado && usuariosSeleccionadosEspecifico.length" class="analista-user-grid">
+                <div *ngFor="let u of usuariosSeleccionadosEspecifico" class="analista-user-card">
+                  <div class="analista-user-name">{{ u.nombre }}</div>
+                  <div class="analista-user-time">
+                    <span class="analista-time-label">Tiempo Real:</span>
+                    <span class="analista-time-value">{{ formatearHorasDesdeSegundos(obtenerSegundosSesionUsuario(u.id)) }}</span>
+                  </div>
+                  <div class="analista-user-action">
+                    <button 
+                      (click)="sesionUsuarioActiva(u.id) ? finalizarSesionUsuario(u) : iniciarSesionUsuario(u)" 
+                      class="analista-secondary-btn"
+                      [disabled]="paqueteBloqueadoEdicion || sesionUsuarioFinalizada(u.id)"
+                    >
+                      {{ sesionUsuarioFinalizada(u.id) ? 'ENTREGADO' : (sesionUsuarioActiva(u.id) ? 'ENTREGAR' : 'INICIAR') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="conteoEspecificoIniciado" class="analista-user-session-actions analista-user-session-actions-end" style="margin-top: 12px;">
+                <button (click)="finalizarTodosCronometros()" class="analista-secondary-btn" [disabled]="paqueteBloqueadoEdicion || !puedeFinalizarTodosCronometros">ENTREGAR TODO</button>
+              </div>
+            </div>
+
+          <!-- BOTÓN GUARDAR -->
           <div class="analista-save-row">
-            <button *ngIf="!paqueteBloqueadoEdicion" (click)="guardarMatrizEspecifica()" class="analista-primary-btn analista-save-specific-btn">Guardar paquete específico</button>
+            <button *ngIf="!paqueteBloqueadoEdicion" (click)="guardarMatrizEspecifica()" class="analista-primary-btn analista-save-specific-btn">Guardar Paquete Específico</button>
             <button *ngIf="paqueteBloqueadoEdicion" (click)="reiniciarPaqueteGuardado()" class="analista-secondary-btn">REINICIAR PAQUETE</button>
           </div>
         </div>
-      </section>
+      </div>
+      </div>
+      </ng-container>
 
-      <ng-template #analistaBloqueado>
-        <div class="analista-blocked-card">
-          <h3>Define el paquete para continuar</h3>
-          <p>Ingresa el nombre y selecciona el tipo del paquete (GENERAL, ESPECIFICO o AMBOS) para habilitar su sección correspondiente.</p>
-        </div>
-      </ng-template>
+      
     </div>
 
   </div>
