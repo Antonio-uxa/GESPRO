@@ -38,3 +38,91 @@ El proyecto está construido sobre las siguientes tecnologías:
 * **Base de Datos:** Relacional utilizando SQLite.
 * **Control de Versiones y Entorno:** Git y Visual Studio Code.
 
+erDiagram
+    %% Relaciones (Cardinalidad y verbos fáciles)
+    usuario ||--o{ reporte : "genera"
+    usuario ||--o{ sesion_usuario_paquete : "realiza"
+
+    %% Tablas Relacionadas
+    usuario {
+        integer ROWID PK
+        integer id
+        string nombre
+        integer tiempo_general
+        string config_tiempos
+    }
+
+    reporte {
+        integer ROWID PK
+        integer id
+        integer analista_id FK
+        string nombre_paquete
+        string modo
+        integer unidades_general
+        string detalle_especifico
+        integer tiempo_meta
+        integer tiempo_real
+        integer rendimiento
+        datetime fecha
+    }
+
+    sesion_usuario_paquete {
+        integer ROWID PK
+        integer id
+        integer usuario_id FK
+        string paquete_nombre
+        string modo
+        datetime started_at
+        datetime ended_at
+        integer elapsed_seconds
+        boolean activo
+        boolean finalizado
+        datetime created_at
+    }
+
+    %% Tablas de Configuración y Catálogo (Sin relaciones directas explícitas)
+    admin_configuracion {
+        integer ROWID PK
+        string clave
+        string valor
+    }
+
+    paquete_analista {
+        integer ROWID PK
+        integer id
+        string nombre
+        string tipo_paquete
+        string configuracion
+        datetime created_at
+        datetime updated_at
+    }
+
+    promocion {
+        integer ROWID PK
+        integer id
+        string nombre
+        integer tiempo_minutos
+        datetime created_at
+        datetime updated_at
+    }
+
+    sesion_paquete {
+        integer ROWID PK
+        integer id
+        string paquete_nombre
+        string modo
+        datetime started_at
+        datetime ended_at
+        integer elapsed_seconds
+        boolean activo
+        datetime created_at
+    }
+
+    tipo_promocion {
+        integer ROWID PK
+        integer id
+        string nombre
+        integer tiempo_minutos
+        datetime created_at
+        datetime updated_at
+    }
