@@ -38,6 +38,7 @@ El proyecto está construido sobre las siguientes tecnologías:
 * **Base de Datos:** Relacional utilizando SQLite.
 * **Control de Versiones y Entorno:** Git y Visual Studio Code.
 
+```mermaid
 erDiagram
     %% Relaciones (Cardinalidad y verbos fáciles)
     usuario ||--o{ reporte : "genera"
@@ -80,7 +81,7 @@ erDiagram
         datetime created_at
     }
 
-    %% Tablas de Configuración y Catálogo (Sin relaciones directas explícitas)
+    %% Tablas de Configuración y Catálogo
     admin_configuracion {
         integer ROWID PK
         string clave
