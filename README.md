@@ -39,91 +39,37 @@ El proyecto está construido sobre las siguientes tecnologías:
 * **Control de Versiones y Entorno:** Git y Visual Studio Code.
 
 ```mermaid
-erDiagram
-    %% Relaciones (Cardinalidad y verbos fáciles)
-    usuario ||--o{ reporte : "genera"
-    usuario ||--o{ sesion_usuario_paquete : "realiza"
+flowchart LR
+    %% Definición de Actores
+    Admin(("🧑‍💼\nAdministrador"))
+    Analista(("👨‍💻\nAnalista"))
 
-    %% Tablas Relacionadas
-    usuario {
-        integer ROWID PK
-        integer id
-        string nombre
-        integer tiempo_general
-        string config_tiempos
-    }
+    %% Límites del Sistema
+    subgraph GESPRO [Plataforma Web GESPRO]
+        direction TB
+        
+        %% Módulo Administración
+        subgraph ModAdmin [Módulo de Administración]
+            A1(Crear, editar y eliminar promociones)
+            A2(Gestionar usuarios analistas)
+            A3(Establecer tiempos de referencia)
+        end
+        
+        %% Módulo Analista
+        subgraph ModAnalista [Módulo de Analista]
+            B1(Seleccionar paquetes de trabajo)
+            B2(Medir tiempo con cronómetro)
+            B3(Calcular Tiempo Meta)
+            B4(Obtener Rendimiento %)
+            B5(Guardar datos offline)
+        end
+    end
 
-    reporte {
-        integer ROWID PK
-        integer id
-        integer analista_id FK
-        string nombre_paquete
-        string modo
-        integer unidades_general
-        string detalle_especifico
-        integer tiempo_meta
-        integer tiempo_real
-        integer rendimiento
-        datetime fecha
-    }
+    %% Relaciones Actor - Casos de Uso
+    Admin --> ModAdmin
+    Analista --> ModAnalista
 
-    sesion_usuario_paquete {
-        integer ROWID PK
-        integer id
-        integer usuario_id FK
-        string paquete_nombre
-        string modo
-        datetime started_at
-        datetime ended_at
-        integer elapsed_seconds
-        boolean activo
-        boolean finalizado
-        datetime created_at
-    }
-
-    %% Tablas de Configuración y Catálogo
-    admin_configuracion {
-        integer ROWID PK
-        string clave
-        string valor
-    }
-
-    paquete_analista {
-        integer ROWID PK
-        integer id
-        string nombre
-        string tipo_paquete
-        string configuracion
-        datetime created_at
-        datetime updated_at
-    }
-
-    promocion {
-        integer ROWID PK
-        integer id
-        string nombre
-        integer tiempo_minutos
-        datetime created_at
-        datetime updated_at
-    }
-
-    sesion_paquete {
-        integer ROWID PK
-        integer id
-        string paquete_nombre
-        string modo
-        datetime started_at
-        datetime ended_at
-        integer elapsed_seconds
-        boolean activo
-        datetime created_at
-    }
-
-    tipo_promocion {
-        integer ROWID PK
-        integer id
-        string nombre
-        integer tiempo_minutos
-        datetime created_at
-        datetime updated_at
-    }
+    %% Estilos visuales
+    style GESPRO fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style ModAdmin fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style ModAnalista fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
