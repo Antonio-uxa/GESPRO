@@ -1,16 +1,16 @@
 # GESPRO: Sistema Web de Gestión de Productividad y Medición de Rendimiento Operativo[cite: 1]
 
-## 📖 Descripción del Proyecto
+## Descripción del Proyecto
 GESPRO es un aplicativo web diseñado e implementado para gestionar la productividad y medir el rendimiento operativo dentro del área de Tecnología, Informática y Operaciones de Supertiendas y Droguerías Olímpica S.A. Su propósito principal es registrar de forma estandarizada el tiempo empleado en los paquetes de trabajo y calcular automáticamente el rendimiento de los analistas.
 
-## ⚠️ Problemática que Resuelve
+## Problemática que Resuelve
 Antes de la implementación de este sistema, el control de tiempos se realizaba de manera completamente manual mediante el uso de papel, cálculos mentales y calculadoras físicas. Este proyecto soluciona los siguientes inconvenientes detectados:
 * Demoras y posibles errores humanos en el cálculo manual de tiempos y rendimientos.
 * Falta de una base centralizada para estandarizar los tiempos de referencia de cada tarea.
 * Dificultades logísticas para medir y distribuir el tiempo en trabajos y paquetes grupales.
 * Riesgo de pérdida de registros temporales por cierres accidentales o fallos durante el turno.
 
-## ⚙️ Características y Funcionalidades Principales
+## Características y Funcionalidades Principales
 El sistema opera bajo un enfoque de doble rol (Administrador y Analista) y cuenta con las siguientes características:
 
 * **Módulo de Administración:** Interfaz que permite al usuario administrador crear, editar y eliminar las promociones disponibles, además de gestionar a los analistas y definir los tiempos de referencia.
@@ -18,7 +18,7 @@ El sistema opera bajo un enfoque de doble rol (Administrador y Analista) y cuent
 * **Cálculo Automático de Rendimiento:** El aplicativo calcula el "Tiempo Meta" multiplicando las unidades totales por el tiempo general establecido. Posteriormente, calcula el "Rendimiento (%)" comparando el tiempo meta frente al tiempo real utilizado.
 * **Respaldo de Datos Offline:** Integración de la API `localStorage` del navegador para proteger los registros temporalmente en caso de desconexiones.
 
-## 📋 Requerimientos del Sistema
+## Requerimientos del Sistema
 A continuación, se detallan los requerimientos funcionales principales implementados en el desarrollo de la plataforma:
 
 | Módulo / Componente | Requerimiento / Funcionalidad | Descripción |
@@ -38,4 +38,4 @@ El proyecto está construido sobre las siguientes tecnologías:
 * **Backend:** Python con el framework Flask.
 * **Base de Datos:** Relacional utilizando SQLite.
 * **Control de Versiones y Entorno:** Git y Visual Studio Code.
-* **Contexto:** Este proyecto fue desarrollado como práctica profesional para Supertiendas y Droguerías Olímpica S.A., bajo el programa de Tecnología en Informática[cite: 1]. El proceso contó con la supervisión académica del docente César Daniel Lavacude Rivera[cite: 1].
+
