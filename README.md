@@ -26,11 +26,11 @@ A continuación, se detallan los requerimientos funcionales principales implemen
 | **Administración** | Gestión de Promociones | Capacidad para crear, editar y eliminar los tipos de promociones disponibles en el sistema[cite: 1]. |
 | **Administración** | Gestión de Usuarios | Interfaz dedicada a la gestión de los analistas que utilizarán el aplicativo[cite: 1]. |
 | **Administración** | Tiempos de Referencia | Establecimiento de los tiempos generales o base para las diferentes promociones, necesarios para los cálculos[cite: 1]. |
-| **Analista** | Registro de Trabajo (Modo General) | Selección y registro de paquetes de trabajo o múltiples promociones asignadas al usuario[cite: 1]. |
+| **Analista** | Registro de Trabajo | Selección y registro de paquetes de trabajo o múltiples promociones asignadas al usuario[cite: 1]. |
 | **Analista** | Control de Tiempo (Cronómetro) | Implementación de un cronómetro en la interfaz para medir con exactitud el tiempo real empleado en cada tarea[cite: 1]. |
 | **Sistema Core** | Cálculo de Tiempo Meta | Funcionalidad que calcula la meta multiplicando las unidades totales por el tiempo general de los participantes[cite: 1]. |
-| **Sistema Core** | Cálculo de Rendimiento (%) | Evaluación automática del rendimiento individual comparando el tiempo meta frente al tiempo real registrado[cite: 1]. |
-| **Seguridad / Datos** | Respaldo Local (Offline) | Uso de la API `localStorage` del navegador para proteger los registros temporalmente en caso de caída de conexión[cite: 1]. |
+| **Sistema Core** | Cálculo de Rendimiento | Evaluación automática del rendimiento individual comparando el tiempo meta frente al tiempo real registrado[cite: 1]. |
+| **Seguridad / Datos** | Respaldo Local | Uso de la API `localStorage` del navegador para proteger los registros temporalmente en caso de caída de conexión[cite: 1]. |
 
 ## 💻 Tecnologías y Herramientas Utilizadas
 El proyecto está construido sobre las siguientes tecnologías[cite: 1]:
