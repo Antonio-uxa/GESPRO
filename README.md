@@ -27,7 +27,6 @@ A continuación, se detallan los requerimientos funcionales principales implemen
 | **Administración** | Gestión de Usuarios | Interfaz dedicada a la gestión de los analistas que utilizarán el aplicativo. |
 | **Administración** | Tiempos de Referencia | Establecimiento de los tiempos generales o base para las diferentes promociones, necesarios para los cálculos. |
 | **Analista** | Registro de Trabajo | Selección y registro de paquetes de trabajo o múltiples promociones asignadas al usuario. |
-| **Analista** | Control de Tiempo (Cronómetro) | Implementación de un cronómetro en la interfaz para medir con exactitud el tiempo real empleado en cada tarea. |
 | **Sistema Core** | Cálculo de Tiempo Meta | Funcionalidad que calcula la meta multiplicando las unidades totales por el tiempo general de los participantes. |
 | **Sistema Core** | Cálculo de Rendimiento | Evaluación automática del rendimiento individual comparando el tiempo meta frente al tiempo real registrado. |
 | **Seguridad / Datos** | Respaldo Local | Uso de la API `localStorage` del navegador para proteger los registros temporalmente en caso de caída de conexión. |
