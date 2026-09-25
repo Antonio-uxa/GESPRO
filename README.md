@@ -37,39 +37,3 @@ El proyecto está construido sobre las siguientes tecnologías:
 * **Backend:** Python con el framework Flask.
 * **Base de Datos:** Relacional utilizando SQLite.
 * **Control de Versiones y Entorno:** Git y Visual Studio Code.
-
-```mermaid
-flowchart LR
-    %% Definición de Actores
-    Admin(("🧑‍💼\nAdministrador"))
-    Analista(("👨‍💻\nAnalista"))
-
-    %% Límites del Sistema
-    subgraph GESPRO [Plataforma Web GESPRO]
-        direction TB
-        
-        %% Módulo Administración
-        subgraph ModAdmin [Módulo de Administración]
-            A1(Crear, editar y eliminar promociones)
-            A2(Gestionar usuarios analistas)
-            A3(Establecer tiempos de referencia)
-        end
-        
-        %% Módulo Analista
-        subgraph ModAnalista [Módulo de Analista]
-            B1(Seleccionar paquetes de trabajo)
-            B2(Medir tiempo con cronómetro)
-            B3(Calcular Tiempo Meta)
-            B4(Obtener Rendimiento %)
-            B5(Guardar datos offline)
-        end
-    end
-
-    %% Relaciones Actor - Casos de Uso
-    Admin --> ModAdmin
-    Analista --> ModAnalista
-
-    %% Estilos visuales
-    style GESPRO fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style ModAdmin fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style ModAnalista fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
