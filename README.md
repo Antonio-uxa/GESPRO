@@ -1,4 +1,4 @@
-# GESPRO: Sistema Web de Gestión de Productividad y Medición de Rendimiento Operativo
+# GESPRO
 
 ## Descripción del Proyecto
 GESPRO es un aplicativo web diseñado e implementado para gestionar la productividad y medir el rendimiento operativo dentro del área de Tecnología, Informática y Operaciones de Supertiendas y Droguerías Olímpica S.A. Su propósito principal es registrar de forma estandarizada el tiempo empleado en los paquetes de trabajo y calcular automáticamente el rendimiento de los analistas.
