@@ -15,7 +15,7 @@ El sistema opera bajo un enfoque de doble rol (Administrador y Analista) y cuent
 
 * **Módulo de Administración:** Interfaz que permite al usuario administrador crear, editar y eliminar las promociones disponibles, además de gestionar a los analistas y definir los tiempos de referencia.
 * **Módulo de Analista:** Interfaz para el registro de tareas y seguimiento de paquetes de trabajo, la cual integra un cronómetro para medir de manera exacta el tiempo empleado.
-* **Cálculo Automático de Rendimiento:** El aplicativo calcula el "Tiempo Meta" multiplicando las unidades totales por el tiempo general establecido. Posteriormente, calcula el "Rendimiento (%)" comparando el tiempo meta frente al tiempo real utilizado.
+* **Cálculo Automático de Rendimiento:** El aplicativo calcula el "Rendimiento (%)" comparando el tiempo meta frente al tiempo real utilizado.
 * **Respaldo de Datos Offline:** Integración de la API `localStorage` del navegador para proteger los registros temporalmente en caso de desconexiones.
 
 ## Requerimientos del Sistema
